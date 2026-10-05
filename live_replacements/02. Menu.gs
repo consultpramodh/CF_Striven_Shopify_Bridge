@@ -39,6 +39,8 @@ function onOpen() {
     .addSeparator()
     .addItem('Build Shopify Price Import', 'buildShopifyPriceImportSheet')
     .addItem('Export Shopify Price CSV', 'exportShopifyPriceImportCsv')
+    .addItem('Select All Remaining Prices', 'selectAllVariancePrices')
+    .addItem('Clear Price Selection', 'clearVariancePriceSelection')
     .addItem('Push Checked Prices (Live)', 'pushVariancePrices_ToShopify')
     .addSeparator()
     .addItem('Full Price Workflow: Public Sync -> Variance -> Import', 'runPublicVarianceThenBuildShopifyPriceImport')

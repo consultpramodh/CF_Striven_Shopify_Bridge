@@ -488,3 +488,37 @@ function priceBridgeVerifyReadOnly() {
   }
   Logger.log(JSON.stringify(result));return result;
 }
+
+/** Select remaining candidate rows; no Shopify requests or price changes. */
+function selectAllVariancePrices() {
+  priceBridgeSetVarianceSelection_(true);
+}
+
+function clearVariancePriceSelection() {
+  priceBridgeSetVarianceSelection_(false);
+}
+
+function priceBridgeSetVarianceSelection_(selected) {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) throw new Error('Another sync or price push is running.');
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName('Variance');
+    if (!sh) throw new Error('Missing Variance sheet.');
+    const data = sh.getDataRange().getValues();
+    if (data.length < 2) { ss.toast('No variance candidates.', 'Price Bridge', 5); return; }
+    const h = data[0];
+    const updateCol = priceBridgeFindCol_(h, 'Update Shopify?');
+    const skuCol = priceBridgeFindCol_(h, 'SKU');
+    const statusCol = priceBridgeFindCol_(h, 'Update Status');
+    let count = 0;
+    const values = data.slice(1).map(row => {
+      const checked = selected && String(row[skuCol] || '').trim() !== '' && row[statusCol] !== 'UPDATED';
+      if (checked) count++;
+      return [checked];
+    });
+    sh.getRange(2, updateCol + 1, values.length, 1).setValues(values);
+    ss.toast(selected ? count + ' remaining prices selected. Run Push Checked Prices (Live) to update Shopify.' : 'Price selection cleared.', 'Price Bridge', 8);
+    console.log('Price selection: ' + count + ' checked; Shopify prices unchanged.');
+  } finally { lock.releaseLock(); }
+}
