@@ -3,7 +3,7 @@
  * Build a Variance sheet showing ONLY SKUs where:
  *   Striven_Items.ItemNumber matches Shopify_products.Variant SKU
  *   AND Striven Price != Shopify Variant Price (within tolerance)
- *   AND Shopify row Published == TRUE (column H, or header "Published" if present)
+ *   AND Shopify product is eligible; public availability is not publication status
  *
  * Sheets expected:
  *  - Striven_Items
@@ -466,5 +466,23 @@ function priceBridgeCheckInstalledConfiguration() {
   const urls=sbrResolveReportUrls_(report);
   const ss=SpreadsheetApp.getActiveSpreadsheet();
   const result={scriptId:ScriptApp.getScriptId(),itemReportUrls:urls.length,strivenAuthConfigured:!!(props.getProperty('STRIVEN_ACCESS_TOKEN')||props.getProperty('striven_token')),shopifyAuthConfigured:!!(props.getProperty('SHOPIFY_ADMIN_ACCESS_TOKEN')||props.getProperty('Shopify_ID')),shopifyDomainConfigured:!!(props.getProperty('SHOPIFY_STORE_DOMAIN')||props.getProperty('SHOPIFY_SHOP_DOMAIN')),strivenSheetPresent:!!ss.getSheetByName('Striven_Items'),publicShopifySheetPresent:!!ss.getSheetByName('Shopify_products_public'),adminExportSheetPresent:!!ss.getSheetByName('Shopify_products'),sourceState:props.getProperty('PRICE_BRIDGE_SOURCE_STATE')||'NOT_REFRESHED'};
+  Logger.log(JSON.stringify(result));return result;
+}
+
+/** Read API access and generated-sheet counts without mutating Shopify. */
+function priceBridgeVerifyReadOnly() {
+  priceBridgeRequireCompleteSource_();
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  const sheetNames=['Striven_Items','Shopify_products_public','Variance','Shopify_Price_Import'];
+  const result={sourceState:PropertiesService.getScriptProperties().getProperty('PRICE_BRIDGE_SOURCE_STATE'),rows:{},checkedCandidates:0,shopifyVariantRead:'NOT_TESTED',shopifyMutations:0};
+  sheetNames.forEach(n=>{const sh=ss.getSheetByName(n);result.rows[n]=sh?Math.max(0,sh.getLastRow()-1):0;});
+  const variance=ss.getSheetByName('Variance');
+  if(variance && variance.getLastRow()>1){const data=variance.getDataRange().getValues();const col=priceBridgeFindCol_(data[0],'Update Shopify?');result.checkedCandidates=data.slice(1).filter(r=>priceBridgeTrue_(r[col])).length;}
+  const pub=ss.getSheetByName('Shopify_products_public');
+  if(pub && pub.getLastRow()>1){
+    if(typeof getValidShopifyAdminAccessToken_==='function')getValidShopifyAdminAccessToken_();
+    const data=pub.getDataRange().getValues();const col=priceBridgeFindCol_(data[0],'VariantID');const row=data.slice(1).find(r=>r[col]);
+    if(row){const live=priceBridgeReadVariant_(row[col]);if(!live || !live.id)throw new Error('Shopify read returned no variant.');result.shopifyVariantRead='OK';}
+  }
   Logger.log(JSON.stringify(result));return result;
 }

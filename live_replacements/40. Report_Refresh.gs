@@ -419,9 +419,10 @@ function sbrPullReport_(report, reset) {
       if(isItems) {
         if(buffer.length){sbrWriteChunk_(sh,writeRow,headers.length,buffer);writeRow+=buffer.length;totalRows+=buffer.length;rowsWrittenForThisUrl+=buffer.length;buffer=[];}
         SpreadsheetApp.flush();
-        sbrSaveReportState_(stateKeys,{urlIndex:urlIndex,pageIndex:pageIndex+1,writeRow:writeRow,totalRows:totalRows,headers:headers});
+        sbrSaveReportState_(stateKeys,{urlIndex:pageResult.endOfReport?urlIndex+1:urlIndex,pageIndex:pageResult.endOfReport?0:pageIndex+1,writeRow:writeRow,totalRows:totalRows,headers:headers});
       }
       pageIndex++;
+      if(isItems && pageResult.endOfReport) break;
     }
     if(isItems && pageIndex>=STRIVEN_BRIDGE_REPORT_SYNC.MAX_PAGES_PER_URL) throw new Error('Item report reached page limit; snapshot not published.');
 
@@ -646,8 +647,27 @@ function sbrFetchReportPage_(reportUrl, token, pageIndex, strictRows) {
     if(!candidates.some(Array.isArray)) throw new Error('Item report response missing a recognized row array; snapshot not published.');
   }
   const rows = sbrExtractRows_(json);
+  let endOfReport = false;
+  // Striven returns a JSON string beyond its final page. Stop on the
+  // validated final data page instead of treating that string as empty data.
+  if (strictRows && json && !Array.isArray(json) &&
+      typeof json.totalRecords === 'number' && typeof json.pageSize === 'number' &&
+      typeof json.pageIndex === 'number') {
+    if (!Number.isInteger(json.totalRecords) || json.totalRecords < 0 ||
+        !Number.isInteger(json.pageSize) || json.pageSize <= 0 ||
+        json.pageIndex !== pageIndex || rows.length > json.pageSize) {
+      throw new Error('Invalid item pagination metadata; snapshot not published.');
+    }
+    if (json.nextPage === null) {
+      if (pageIndex * json.pageSize + rows.length !== json.totalRecords) {
+        throw new Error('Item final page does not match totalRecords; snapshot not published.');
+      }
+      endOfReport = true;
+    }
+  }
 
   return {
+    endOfReport: endOfReport,
     pageIndex: pageIndex,
     rows: rows,
     rowCount: rows.length,
