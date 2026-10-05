@@ -1,0 +1,12 @@
+{
+  "source_attachment_sha256": "e03c7c8b7ad6153082bc7802ecb98e23ec795b3963eebc46ab14f6f5d08f9df2",
+  "replacement_sha256": {
+    "items.gs": "f53c34b5060a055dc25f54adf6be352f6eebf60bdb5b93e377153aed55a8d2ad",
+    "menu.gs": "a5ff9ac3a4037e42c8d8abece30649d484b00ad3a65182f593c1c87b411c0de9",
+    "shopify_import.gs": "8c2ddc5582e732ba3ba92ed637b56480d59e89dd64cacffae9a99c0d86709cba",
+    "shopify_price_import.gs": "d4f2b624ca835beae71974a551f61d6e67931c5070ded95fb5f2bae28e837dd6",
+    "variance.gs": "55edfd12c53c2cf972f4d6387e0c18f2a207bcfb34ed689234824bd0af08293e"
+  },
+  "regression_tests_passed": 28,
+  "live_deployed": false
+}

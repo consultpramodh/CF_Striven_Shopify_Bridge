@@ -1,0 +1,3 @@
+query PriceBridgeVariant($id: ID!) { node(id: $id) { ... on ProductVariant { id sku price compareAtPrice product { id status } } } }
+
+mutation PriceBridgeUpdate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) { productVariantsBulkUpdate(productId: $productId, variants: $variants, allowPartialUpdates: false) { productVariants { id price } userErrors { field message } } }
