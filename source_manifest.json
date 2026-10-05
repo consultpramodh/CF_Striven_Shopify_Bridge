@@ -1,0 +1,61 @@
+{
+  "source_attachment_sha256": "e03c7c8b7ad6153082bc7802ecb98e23ec795b3963eebc46ab14f6f5d08f9df2",
+  "replacement_sha256": {
+    "items.gs": "f53c34b5060a055dc25f54adf6be352f6eebf60bdb5b93e377153aed55a8d2ad",
+    "menu.gs": "a5ff9ac3a4037e42c8d8abece30649d484b00ad3a65182f593c1c87b411c0de9",
+    "shopify_import.gs": "8c2ddc5582e732ba3ba92ed637b56480d59e89dd64cacffae9a99c0d86709cba",
+    "shopify_price_import.gs": "d4f2b624ca835beae71974a551f61d6e67931c5070ded95fb5f2bae28e837dd6",
+    "variance.gs": "55edfd12c53c2cf972f4d6387e0c18f2a207bcfb34ed689234824bd0af08293e"
+  },
+  "regression_tests_passed": 28,
+  "live_deployed": true,
+  "live_script_id": "1MyiyvDaje6zAQgZcnPXLoDiGZoxSbs9Uq6eZC5VUIwnjIDsULgOuCAXa",
+  "live_replacement_sha256": {
+    "02. Menu.gs": "f870b981b721b271e7a9379f63b242f0f1ea958a1168b6e3246395b6c389b4c2",
+    "05_Shopify_OAuth_Setup.gs": "e7e4fe942a625128dc8bbe3a32d59280684882e7ec4e09295beeecae0fed2e3a",
+    "40. Report_Refresh.gs": "c85f211327d8daabf1f1fbe44d5cddaabac85901108cbc570613c35240895ca4",
+    "42_Price_Variance.gs": "f8614f301cc472384970ddb9f98038a4955bffb463c1837e4f2ac4890f0127c4",
+    "43_Shopify_Price_Import.gs": "ac4135c9e9aa23f35ce748a34923d2e32ac88a38540e03231d69ad79e99c5276"
+  },
+  "live_regression_tests_passed": 40,
+  "live_source_readback": {
+    "files_verified": 23,
+    "changed_files": 4,
+    "unchanged_files": 19,
+    "exact_match": true
+  },
+  "live_acceptance_status": "passed read-only checks; CSV identity data needs refreshed Admin export",
+  "live_acceptance": {
+    "striven_snapshot_state": "COMPLETE",
+    "striven_items": 19284,
+    "striven_pages": 20,
+    "shopify_public_variants": 2202,
+    "matched_sku_variants": 854,
+    "underpriced_candidates": 74,
+    "checked_candidates": 0,
+    "price_import_rows": 0,
+    "shopify_variant_read": "OK",
+    "shopify_price_mutations": 0,
+    "admin_export_identity_matches": 0,
+    "admin_export_candidates_missing_identity": 74,
+    "temporary_helpers_removed": true
+  },
+  "selection_revision": {
+    "files_verified": 23,
+    "files_changed": 2,
+    "files_unchanged": 21,
+    "candidates": 74,
+    "selected_before": 0,
+    "selected_after": 0,
+    "csv_blocked": 74,
+    "variant_ids_preserved": true,
+    "shopify_mutations": 0
+  },
+  "oauth_write_scope": {
+    "requested_scope": "write_products",
+    "request_source_installed": true,
+    "saved_source_exact_match": true,
+    "shopify_consent": "pending",
+    "live_product_write_verified": false
+  }
+}
