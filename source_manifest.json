@@ -8,5 +8,20 @@
     "variance.gs": "55edfd12c53c2cf972f4d6387e0c18f2a207bcfb34ed689234824bd0af08293e"
   },
   "regression_tests_passed": 28,
-  "live_deployed": false
+  "live_deployed": true,
+  "live_script_id": "1MyiyvDaje6zAQgZcnPXLoDiGZoxSbs9Uq6eZC5VUIwnjIDsULgOuCAXa",
+  "live_replacement_sha256": {
+    "02. Menu.gs": "f870b981b721b271e7a9379f63b242f0f1ea958a1168b6e3246395b6c389b4c2",
+    "40. Report_Refresh.gs": "c863b10aa5b1799896f51d700c413aa02283640de2d019affcc714a3f3bbe6bf",
+    "42_Price_Variance.gs": "9309b7c185eb02a83369cda7b799f8d8fd494054c70303524fe254206ea35cd3",
+    "43_Shopify_Price_Import.gs": "79e7bc460cf4bc785ae2cd0d5b79853198e48f8ede8ebfe934f1202db550a87d"
+  },
+  "live_regression_tests_passed": 31,
+  "live_source_readback": {
+    "files_verified": 23,
+    "changed_files": 4,
+    "unchanged_files": 19,
+    "exact_match": true
+  },
+  "live_acceptance_status": "source refresh in progress"
 }

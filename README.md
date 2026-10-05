@@ -1,3 +1,25 @@
+# Live-project adaptation — 2026-10-05
+
+**Use `live_replacements/` for the current live Apps Script project.** The older `replacements/` directory was prepared from the uploaded bundle and is retained as a reviewed historical patch; do not deploy it over the current live layout.
+
+Live target: `1MyiyvDaje6zAQgZcnPXLoDiGZoxSbs9Uq6eZC5VUIwnjIDsULgOuCAXa` (`Shopify/Striven SYNC`). A full 23-file source backup was captured privately before changes. The live manifest, OAuth, order modules, existing report multi-URL support, compatibility wrappers, and catalog import are preserved.
+
+Replace only `02. Menu.gs`, `40. Report_Refresh.gs`, `42_Price_Variance.gs`, and `43_Shopify_Price_Import.gs` from `live_replacements/`. The live report wrapper remains canonical; no competing `items.gs` function is added. The existing `runVarianceThenBuildShopifyPriceImport()` continues to use the current variance and checkbox selections. The public full workflow refreshes item data first.
+
+Before replacing report source, run the temporary `priceBridgeSeedExistingReportConfiguration()` helper in the existing live report file. It invokes the live configuration's existing setup function to preserve private report URLs in Script Properties. Those embedded URLs are deliberately absent from the public replacement source. The temporary helper is removed by the final report replacement. Do not publish the private source backup to GitHub.
+
+For live-adaptation tests:
+
+```bash
+node tests/live_price_bridge.test.cjs
+```
+
+31 isolated tests passed, including actual multi-URL pause/resume, second-part failure recovery, malformed envelope rejection, and preservation of non-item report behavior. All 22 server files and their combined project passed syntax checks with the adapted replacements. The user approved CF Operations Console's existing Drive/Sheets scopes. Configuration setup completed. The four adapted replacements are installed in the existing bound project; a reload and complete readback verified all 23 files (four replacements matched exactly and 19 files were unchanged). Live source-refresh acceptance checks are in progress; no Shopify price mutations have been run.
+
+The read/update GraphQL operations are unchanged from the validated `2026-07` operations below. The item's published snapshot is protected by item-only staging; other report workflows retain their prior behavior. Existing public wrapper and helper names remain available.
+
+---
+
 # Classic Fireplace — Striven / Shopify price bridge repair
 
 Google Apps Script replacement files, based on the supplied `ScriptBundle.txt` on 2026-10-05. This branch is limited to the price bridge; it is not a standalone Apps Script project. Keep subsequent price-bridge revisions on `fix/price-bridge`.
