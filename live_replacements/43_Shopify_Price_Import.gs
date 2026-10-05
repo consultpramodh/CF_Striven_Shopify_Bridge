@@ -261,6 +261,9 @@ function enrichVarianceIdentifiersFromAdminExport_() {
 
   const vHeader = vData[0];
   const pHeader = pData[0];
+  let csvErrorCol = priceBridgeTryFindCol_(vHeader, 'CSV Error');
+  if (csvErrorCol < 0) { csvErrorCol = vHeader.length; vHeader.push('CSV Error'); }
+  const liveErrorCol = priceBridgeFindCol_(vHeader, 'Error');
 
   // Variance columns
   const vSkuCol    = priceBridgeFindCol_(vHeader, 'SKU');
@@ -286,7 +289,7 @@ function enrichVarianceIdentifiersFromAdminExport_() {
   const pO3NCol    = priceBridgeTryFindCol_(pHeader, 'Option3 Name');
   const pO3VCol    = priceBridgeTryFindCol_(pHeader, 'Option3 Value');
 
-  // Map SKU -> identifiers (first wins)
+  // Keep every SKU candidate; require a unique product/option identity.
   const idx = new Map();
   for (let r = 1; r < pData.length; r++) {
     const sku = priceBridgeSku_(pData[r][pSkuCol]);
@@ -310,11 +313,15 @@ function enrichVarianceIdentifiersFromAdminExport_() {
 
   for (let r = 1; r < vData.length; r++) {
     const row = vData[r].slice();
+    while (row.length < vHeader.length) row.push('');
+    // Move only historical CSV errors; preserve live update failures.
+    if (priceBridgeIsLegacyCsvError_(row[liveErrorCol])) row[liveErrorCol] = '';
+    row[csvErrorCol] = '';
     const sku = priceBridgeSku_(row[vSkuCol]);
     const candidates = idx.get(sku) || [];
     const handle = String(row[vHandleCol] || '').trim();
     const byHandle = candidates.filter(c => String(c.handle).trim() === handle);
-    let matching = byHandle.length ? byHandle : candidates;
+    let matching = handle ? byHandle : candidates;
     if (matching.length > 1 && row[vO1VCol]) matching = matching.filter(c => [c.o1n,c.o1v,c.o2n,c.o2v,c.o3n,c.o3v].join('|') === [row[vO1NCol],row[vO1VCol],vO2NCol < 0 ? '' : row[vO2NCol],vO2VCol < 0 ? '' : row[vO2VCol],vO3NCol < 0 ? '' : row[vO3NCol],vO3VCol < 0 ? '' : row[vO3VCol]].join('|'));
     const s = matching.length === 1 ? matching[0] : null;
 
@@ -330,15 +337,13 @@ function enrichVarianceIdentifiersFromAdminExport_() {
       filled++;
     } else {
       missing++;
-      row[vHandleCol] = '';
-      row[priceBridgeFindCol_(vHeader, 'Update Shopify?')] = false;
-      row[priceBridgeFindCol_(vHeader, 'Error')] = candidates.length ? 'Ambiguous export identity. Refresh Admin export; do not use first SKU match.' : 'SKU missing from Admin export.';
+      row[csvErrorCol] = candidates.length ? 'CSV identity does not resolve uniquely in Admin export. Refresh Admin export.' : 'SKU missing from Admin export.';
     }
 
     out.push(row);
   }
 
-  vSh.getRange(2, 1, out.length, vHeader.length).setValues(out);
+  priceBridgeWriteValues_(vSh, 1, vHeader.length, [vHeader, ...out]);
 
   Logger.log(`Variance enriched from Shopify_products. filled=${filled}, missing=${missing}`);
   ss.toast(`Variance enriched: filled=${filled}, missing=${missing}`, 'Variance', 8);
@@ -450,4 +455,28 @@ function runVarianceThenBuildShopifyPriceImport() {
 function exportShopifyPriceImportCsv() {
   // Rebuild and revalidate checked candidates; never export stale output blindly.
   buildShopifyPriceImportSheet();
+}
+
+function priceBridgeIsLegacyCsvError_(message) {
+  return message === 'SKU missing from Admin export.' ||
+    message === 'Ambiguous export identity. Refresh Admin export; do not use first SKU match.';
+}
+
+/** Repair CSV diagnostics without exporting or changing store prices. */
+function priceBridgeRepairCsvDiagnostics() {
+  const sh=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Variance');
+  if(!sh)throw new Error('Missing Variance sheet.');
+  const before=sh.getDataRange().getValues();
+  const header=before[0];
+  const selection=priceBridgeFindCol_(header,'Update Shopify?');
+  const id=priceBridgeFindCol_(header,'Shopify Variant ID');
+  const liveError=priceBridgeFindCol_(header,'Error');
+  const selectedBefore=before.slice(1).filter(r=>r[selection]===true).length;
+  const liveErrorsBefore=before.slice(1).filter(r=>r[liveError] && !priceBridgeIsLegacyCsvError_(r[liveError])).length;
+  enrichVarianceIdentifiersFromAdminExport_();
+  const after=sh.getDataRange().getValues();
+  if(after.length!==before.length || after.slice(1).some((r,i)=>r[selection]!==before[i+1][selection] || String(r[id])!==String(before[i+1][id])))throw new Error('Selection or variant identity changed unexpectedly.');
+  const csvError=priceBridgeFindCol_(after[0],'CSV Error');
+  const result={candidates:after.length-1,selectedBefore:selectedBefore,selectedAfter:after.slice(1).filter(r=>r[selection]===true).length,csvBlocked:after.slice(1).filter(r=>r[csvError]).length,liveErrorsPreserved:liveErrorsBefore,variantIdsPreserved:true,shopifyMutations:0};
+  Logger.log(JSON.stringify(result));return result;
 }

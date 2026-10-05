@@ -330,6 +330,8 @@ function priceBridgeValidateExportRow_(row, headers, adminData) {
   const runAt = new Date(cell('Run Timestamp')).getTime();
   const sourceAt = Date.parse(PropertiesService.getScriptProperties().getProperty('PRICE_BRIDGE_SOURCE_COMPLETED_AT') || '');
   if (!Number.isFinite(runAt) || runAt < sourceAt) return 'Source refreshed after variance; rebuild variance.';
+  const csvErrorCol=priceBridgeTryFindCol_(headers,'CSV Error');
+  if (csvErrorCol >= 0 && row[csvErrorCol]) return String(row[csvErrorCol]);
   if (cell('Error')) return String(cell('Error'));
   const target = priceBridgeNumber_(cell('Target Price'));
   const current = priceBridgeNumber_(cell('Shopify Variant Price'));

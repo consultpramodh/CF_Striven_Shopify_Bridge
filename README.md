@@ -55,8 +55,17 @@ The existing Admin export resolved none of the 74 candidate identities. Refresh 
 node tests/live_price_bridge.test.cjs
 ```
 
-35 isolated tests cover candidate rules, checked CSV behavior, API identity/concurrency/sale guards, mutation rejection and readback, durable multi-URL pause/resume, failure recovery, malformed responses, and Striven terminal-page handling. All 22 server files and the combined live project parse successfully.
+40 isolated tests cover candidate rules, checked CSV behavior, API identity/concurrency/sale guards, mutation rejection and readback, durable multi-URL pause/resume, failure recovery, malformed responses, and Striven terminal-page handling. All 22 server files and the combined live project parse successfully.
 
 The live Striven API exposes `totalRecords`, `pageSize`, `pageIndex`, and `nextPage`; its final data page has `nextPage: null`. Requesting beyond the final page returns a JSON string. The repair validates the final record count and stops on the final data page while retaining strict rejection of malformed row envelopes and premature terminal pages.
 
 The read and price-only mutation operations in `tests/price_bridge.graphql` were schema-validated against Shopify Admin API `2026-07`. Local tests use mocks and do not make external writes. Live read-only verification does not prove production mutation permission; a selected price update must still pass the runtime safeguards.
+
+
+## Selection correction — 2026-10-05
+
+CSV enrichment preserves checkbox selections, public handles, and variant IDs when the Admin export cannot resolve a candidate. CSV diagnostics use a separate `CSV Error` column; `Error` remains the live-update diagnostic. Only the two exact legacy CSV messages are migrated out of `Error`; unrelated live failures remain intact. A known public handle must match the export handle; a same-SKU row for a different product cannot silently replace it.
+
+The existing variance/import workflow preserves selections. The full refresh/build workflow deliberately creates a new candidate set, so review and select candidates after rebuilding. CSV identity validation stays strict and still requires matching Admin-export data. Direct pushes use variant IDs and are independent of CSV errors.
+
+This revision updates only the two existing price modules. Reload/readback verified all 23 files (two changed, 21 unchanged relative to the preceding live version). The current-sheet repair migrated diagnostics for 74 candidates, preserved their variant IDs, and retained the existing zero selected rows. All 40 mock regression tests pass, including a selected direct push despite a separate CSV error; no live mutation was executed.
