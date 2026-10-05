@@ -69,3 +69,8 @@ CSV enrichment preserves checkbox selections, public handles, and variant IDs wh
 The existing variance/import workflow preserves selections. The full refresh/build workflow deliberately creates a new candidate set, so review and select candidates after rebuilding. CSV identity validation stays strict and still requires matching Admin-export data. Direct pushes use variant IDs and are independent of CSV errors.
 
 This revision updates only the two existing price modules. Reload/readback verified all 23 files (two changed, 21 unchanged relative to the preceding live version). The current-sheet repair migrated diagnostics for 74 candidates, preserved their variant IDs, and retained the existing zero selected rows. All 40 mock regression tests pass, including a selected direct push despite a separate CSV error; no live mutation was executed.
+
+
+## OAuth product-write scope — 2026-10-05
+
+`05_Shopify_OAuth_Setup.gs` now requests `write_products` in addition to the three existing read scopes. The existing OAuth interfaces, callback, token handling, and credentials are preserved. This fifth live replacement is required for direct price updates. The scope request is installed and its saved source was read back exactly. Existing tokens are not upgraded by a code change: the Shopify app must allow the scope, the user must approve reauthorization, and the authorizing account must be permitted to update product variants. Product-write access and successful production mutation remain pending.

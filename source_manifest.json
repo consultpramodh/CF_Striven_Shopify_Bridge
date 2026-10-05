@@ -12,6 +12,7 @@
   "live_script_id": "1MyiyvDaje6zAQgZcnPXLoDiGZoxSbs9Uq6eZC5VUIwnjIDsULgOuCAXa",
   "live_replacement_sha256": {
     "02. Menu.gs": "f870b981b721b271e7a9379f63b242f0f1ea958a1168b6e3246395b6c389b4c2",
+    "05_Shopify_OAuth_Setup.gs": "e7e4fe942a625128dc8bbe3a32d59280684882e7ec4e09295beeecae0fed2e3a",
     "40. Report_Refresh.gs": "c85f211327d8daabf1f1fbe44d5cddaabac85901108cbc570613c35240895ca4",
     "42_Price_Variance.gs": "f8614f301cc472384970ddb9f98038a4955bffb463c1837e4f2ac4890f0127c4",
     "43_Shopify_Price_Import.gs": "ac4135c9e9aa23f35ce748a34923d2e32ac88a38540e03231d69ad79e99c5276"
@@ -49,5 +50,12 @@
     "csv_blocked": 74,
     "variant_ids_preserved": true,
     "shopify_mutations": 0
+  },
+  "oauth_write_scope": {
+    "requested_scope": "write_products",
+    "request_source_installed": true,
+    "saved_source_exact_match": true,
+    "shopify_consent": "pending",
+    "live_product_write_verified": false
   }
 }
